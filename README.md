@@ -50,15 +50,20 @@ There is also a web-based version of NumPost available. However, the output may 
 
 To use the Python script, follow these steps:
 
-1. Ensure you have Python installed on your system.
-2. Install the Pillow library (if running the script):
+1. Ensure you have Python and Git installed on your system.
+3. Clone the repository
+  ```bash
+  git clone https://github.com/Soleil-des-chats/NumPost.git
+  ```
+5. Then navigate into the folder
+   ```bash
+   cd NumPost
+   ```
+7. Install the Pillow library (if running the script):
    ```bash
    pip install Pillow
    ```
-3. Save the script in a file named `generate_script.py`.
-4. Open a terminal or command prompt.
-5. Navigate to the directory where `generate_script.py` is located.
-6. Run the script with the following command:
+9. Run the script with the following command:
    ```bash
    python generate_script.py <image_path> <output_path>
    ```
