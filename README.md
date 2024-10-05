@@ -15,7 +15,6 @@ NumPost is a Python script that converts images into a NumWorks calculator-compa
 - [Examples](#examples)
 - [License](#license)
 - [Developer](#developer)
-- [Tags](#tags)
 
 ## Features
 
