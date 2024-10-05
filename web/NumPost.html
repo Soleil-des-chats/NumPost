@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumWorks Script Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #007BFF, #00C9A7);
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 25px;
+            color: #007BFF;
+        }
+
+        .upload-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .file-label:hover {
+            background-color: #218838;
+        }
+
+        .image-preview {
+            margin: 20px auto;
+            max-width: 100%;
+	    max-height:300px;
+            height: auto;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+            display: none;
+        }
+
+        pre {
+            text-align: left;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            margin-top: 20px;
+        }
+
+        .output-container {
+            text-align: left;
+        }
+
+        .output-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NumWorks Image to Script Generator</h1>
+        
+        <input type="file" id="imageInput" accept="image/*">
+        <label for="imageInput" class="file-label">Upload Image</label>
+
+        <img id="imagePreview" class="image-preview" alt="Image Preview">
+
+        <button class="upload-btn" onclick="generateScript()">Generate Script</button>
+        
+        <div class="output-container">
+            <span class="output-label">Generated NumWorks Script:</span>
+            <pre id="output">The generated script will appear here...</pre>
+        </div>
+
+	<h4>Developed by Titimousse</h1>
+    </div>
+
+    <script>
+        const palette = [
+            [0, 0, 0], [255, 255, 255], [255, 0, 0], [0, 255, 0],
+            [0, 0, 255], [255, 255, 0], [0, 255, 255], [255, 0, 255],
+            [128, 0, 0], [128, 128, 0], [0, 128, 0], [128, 0, 128],
+            [0, 128, 128], [192, 192, 192], [128, 128, 128], [0, 0, 128]
+        ];
+
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const outputElement = document.getElementById('output');
+
+        imageInput.addEventListener('change', function() {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function closestColor(color) {
+            return palette.reduce((best, current, i) => {
+                const distance = color.reduce((sum, value, j) => sum + (value - current[j]) ** 2, 0);
+                return distance < best.distance ? {index: i, distance: distance} : best;
+            }, {index: -1, distance: Infinity}).index;
+        }
+
+        function generateScript() {
+            const file = imageInput.files[0];
+            if (!file) {
+                alert("Please upload an image.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 80;
+                    canvas.height = 60;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 80, 60);
+
+                    let data = "";
+                    for (let y = 0; y < 60; y++) {
+                        for (let x = 0; x < 80; x++) {
+                            const color = ctx.getImageData(x, y, 1, 1).data;
+                            const closest = closestColor([color[0], color[1], color[2]]);
+                            data += closest.toString(16).toUpperCase();
+                        }
+                    }
+
+                    const script = `
+from kandinsky import *
+
+pal = ${JSON.stringify(palette)}
+im = "${data}"
+
+def rect(x, y, c):
+    for i in range(16):
+        set_pixel(4*x + i % 4, 4*y + i // 4, c)
+
+def draw():
+    for i in range(80*60):
+        c = pal[int("0x" + im[i])]
+        rect(i % 80, i // 80, color(c[0], c[1], c[2]))
+
+draw()
+`;
+                    outputElement.textContent = script;
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
