@@ -122,7 +122,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Developer
 
 This project is developed by **Titimousse**. 
-
-## Tags
-
-`#NumWorks #ImageConversion #Python #Pillow #Graphics #Calculator #Script`
