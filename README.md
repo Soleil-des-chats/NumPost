@@ -120,4 +120,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Developer
 
-This project is developed by **Titimousse**. 
+This project is developed by **Titimousse**. (Me) 
